@@ -35,8 +35,8 @@
 };
 
 /* Grab Data */
-var trial1 = {w1:"hello", w2: "cat", probe: "dog"};
-
+var trials = [{w1:"hello", w2: "cat", probe: "dog", correct: "n"} ,
+{w1:"bat", w2: "moose", probe: "bat", correct: "m" } ];
 
 /* define test trials */
 var test_stimuli = [
@@ -64,14 +64,27 @@ var fixation = {
   response_ends_trial: false
 };
 
+var test_fun = function() {
+  var stim = [];
+  for (var i = 0; i < trials.length; i++) {
+    alert(trials[i]);
+    stim.push(
+      {stimuli: ["<p>+</p>", '<p>' + trials[i].w1 + '</p>' + trials[i].w2 + '</p>',
+        '<p>word3</p>word4</p><p>word5</p>word6</p>', '<p>' + trials[i].probe + '</p>'],
+        data: {response: trials[i].correct}
+      }
+    );
+    };
+  return stim;
+};
+
 var test_block2 = {
   type: 'multi-stim-multi-response',
   is_html: true,
-  stimuli: ["<p>+</p>", '<p>' + trial1.w1 + '</p>' + trial1.w2 + '</p>',
-  '<p>word3</p>word4</p><p>word5</p>word6</p>', '<p>' + trial1.probe + '</p>'],
   choices: [[89,78]], // Y or N
   timing_stim: [1000, 2000, 2000, 2000],
-  prompt: 'Press M for a match OR N for not a match'
+  prompt: 'Press M for a match OR N for not a match',
+  timeline: test_fun()
 };
 
 var test_block = {
