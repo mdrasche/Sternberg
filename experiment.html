@@ -84,7 +84,10 @@ var test_block2 = {
   choices: [[89,78]], // Y or N
   timing_stim: [1000, 2000, 2000, 2000],
   prompt: 'Press M for a match OR N for not a match',
-  timeline: test_fun()
+  timeline: test_fun(),
+  response_ends_trial: false,
+  timing_post_trial: 0,
+  timing_response: 7000
 };
 
 var test_block = {
