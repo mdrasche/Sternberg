@@ -8,7 +8,7 @@
         <script src="jspsych-5.0.1/plugins/jspsych-single-stim.js"></script>
         <script src="jspsych-5.0.1/plugins/jspsych-multi-stim-multi-response.js"></script>
         <link href="jspsych-5.0.1/css/jspsych.css" rel="stylesheet" type="text/css"></link>
-        <script src="test.JSON" ></script>
+        <script src="test2.JSON" ></script>
 
 
    </head>
@@ -37,40 +37,20 @@
   timing_post_trial: 2000
 };
 
-/* define test trials */
-var test_stimuli = [
-  {
-    stimulus: "<p>go</p>",
-    data: { response: 'go' }
-  },
-  {
-    stimulus: "<p>nogo</p>",
-    data: { response: 'no-go' }
-  }
-];
-
-var all_trials = jsPsych.randomization.repeat(test_stimuli, 2);
-
-var post_trial_gap = function() {
-  return Math.floor( Math.random() * 1500 ) + 750;
-};
-
-var fixation = {
-  type: "single-stim",
-  is_html: true,
-  stimulus: "<p>+</p>",
-  timing_response: 1500,
-  response_ends_trial: false
-};
-
 var test_fun = function() {
   var stim = [];
   for (var i = 0; i < trials.length; i++) {
-    alert(trials[i]);
     stim.push(
-      {stimuli: ["<p>+</p>", '<p>' + trials[i].w1 + '</p>' + trials[i].w2 + '</p>',
-        '<p>word3</p>word4</p><p>word5</p>word6</p>', '<p>' + trials[i].probe + '</p>'],
-        data: {response: trials[i].correct}
+      {stimuli: [
+      "<p>+</p>",
+      '<p>' + trials[i].w1 + '</p><p>' + trials[i].w2 +
+      '</p><p>' + trials[i].w3 + '</p><p>' + trials[i].w4 + '</p>',
+       '<p>' + trials[i].w5 + '</p><p>' + trials[i].w6 +
+      '</p><p>' + trials[i].w7 + '</p><p>' + trials[i].w8 + '</p><p>',
+      '<p>+++</p>',
+      '<p>' + trials[i].probe + '</p>'
+    ],
+        data: {answer: trials[i].correct}
       }
     );
     };
@@ -80,37 +60,28 @@ var test_fun = function() {
 var test_block2 = {
   type: 'multi-stim-multi-response',
   is_html: true,
-  choices: [[89,78]], // Y or N
-  timing_stim: [1000, 2000, 2000, 2000],
+  choices: [[77,78]], // M or N
+  timing_stim: [1000, 2000, 2000, 2000, 2000], // timing of each event
   prompt: 'Press M for a match OR N for not a match',
   timeline: test_fun(),
   response_ends_trial: false,
   timing_post_trial: 0,
-  timing_response: 7000
-};
-
-var test_block = {
-  type: 'single-stim',
-  is_html: true,
-  choices: ['F'],
-  randomize_order: true,
-  timing_response: 1500,
-  timing_post_trial: post_trial_gap,
+  timing_response: 9000,
   on_finish: function(data){
     var correct = false;
-    if(data.response == 'go' && data.rt > -1){
+    if(data.answer == 'm' && data.key_press == '[77]'){
       correct = true;
-    } else if(data.response == 'no-go' && data.rt == -1){
+    } else if(data.answer == 'n' && data.key_press == '[78]'){
       correct = true;
     }
     jsPsych.data.addDataToLastTrial({correct: correct});
-  },
-  timeline:  all_trials
+  }
 };
+
 
 function getSubjectData() {
 
-  var trials = jsPsych.data.getTrialsOfType('single-stim');
+  var trials = jsPsych.data.getTrialsOfType('multi-stim-multi-response');
 
   var sum_rt = 0;
   var correct_trial_count = 0;
@@ -118,14 +89,13 @@ function getSubjectData() {
   for (var i = 0; i < trials.length; i++) {
     if (trials[i].correct == true) {
       correct_trial_count++;
-      if(trials[i].rt > -1){
-        sum_rt += trials[i].rt;
-        correct_rt_count++;
-      }
+      var rt = trials[i].rt;
+      rt = parseInt(rt.match(/\d+/)) - 7000; //Probably a better way to do this
+      sum_rt += rt ;
     }
   }
   return {
-    rt: Math.floor(sum_rt / correct_rt_count),
+    rt: Math.floor(sum_rt / correct_trial_count),
     accuracy: Math.floor(correct_trial_count / trials.length * 100)
   }
 };
