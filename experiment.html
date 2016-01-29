@@ -40,7 +40,7 @@
 var test_fun = function() {
   var stim = [];
   for (var i = 0; i < trials.length; i++) {
-    stim.push(
+    var next_stim =
       {stimuli: [
       "<p>+</p>",
       '<p>' + trials[i].w1 + '</p><p>' + trials[i].w2 +
@@ -48,40 +48,50 @@ var test_fun = function() {
        '<p>' + trials[i].w5 + '</p><p>' + trials[i].w6 +
       '</p><p>' + trials[i].w7 + '</p><p>' + trials[i].w8 + '</p><p>',
       '<p>+++</p>',
-      '<p>' + trials[i].probe + '</p>'
     ],
-        data: {answer: trials[i].correct}
+    data: {trial_count: i + 1},
+    timing_stim: [1000, 2000, 2000, 2000], // timing of each stim
+    type: 'multi-stim-multi-response',
+    timing_response: 7000,
+    choices: -1
+      };
+    stim.push(next_stim);
+    var next_probe =
+    {stimulus: '<p>' + trials[i].probe + '</p>',
+    data: {answer: trials[i].correct,
+    trial_count: i + 1},
+    timing_stim: 2000,
+    timing_response: 2000,
+    type: 'single-stim',
+    choices: [77, 78], // M or N
+    on_finish: function(data){
+      var correct = false;
+      if(data.answer == 'm' && data.key_press == 77){
+        correct = true;
+      } else if(data.answer == 'n' && data.key_press == 78){
+        correct = true;
       }
-    );
+      jsPsych.data.addDataToLastTrial({correct: correct});
+    }
+  };
+    stim.push(next_probe);
     };
+    console.log(stim);
   return stim;
 };
 
 var test_block2 = {
-  type: 'multi-stim-multi-response',
   is_html: true,
-  choices: [[77,78]], // M or N
-  timing_stim: [1000, 2000, 2000, 2000, 2000], // timing of each event
   prompt: 'Press M for a match OR N for not a match',
   timeline: test_fun(),
   response_ends_trial: false,
-  timing_post_trial: 0,
-  timing_response: 9000,
-  on_finish: function(data){
-    var correct = false;
-    if(data.answer == 'm' && data.key_press == '[77]'){
-      correct = true;
-    } else if(data.answer == 'n' && data.key_press == '[78]'){
-      correct = true;
-    }
-    jsPsych.data.addDataToLastTrial({correct: correct});
-  }
+  timing_post_trial: 0
 };
 
 
 function getSubjectData() {
 
-  var trials = jsPsych.data.getTrialsOfType('multi-stim-multi-response');
+  var trials = jsPsych.data.getTrialsOfType('single-stim');
 
   var sum_rt = 0;
   var correct_trial_count = 0;
@@ -89,9 +99,7 @@ function getSubjectData() {
   for (var i = 0; i < trials.length; i++) {
     if (trials[i].correct == true) {
       correct_trial_count++;
-      var rt = trials[i].rt;
-      rt = parseInt(rt.match(/\d+/)) - 7000; //Probably a better way to do this
-      sum_rt += rt ;
+      sum_rt += trials[i].rt;
     }
   }
   return {
