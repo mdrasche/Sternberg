@@ -37,9 +37,11 @@
   timing_post_trial: 2000
 };
 
-var test_fun = function() {
+/* Create arrary of trials to cycle through: stim->probe->feedback->stim... */
+var create_trials = function() {
   var stim = [];
-  for (var i = 0; i < trials.length; i++) {
+  for (var i = 0; i < trials.length; i++) { // for each trial...
+    /* Create memory set */
     var next_stim =
       {stimuli: [
       "<p>+</p>",
@@ -53,9 +55,14 @@ var test_fun = function() {
     timing_stim: [1000, 2000, 2000, 2000], // timing of each stim
     type: 'multi-stim-multi-response',
     timing_response: 7000,
-    choices: -1
+    choices: -1,
+    is_html: true,
+    prompt: 'Press M for a match OR N for not a match',
+    response_ends_trial: false,
+    timing_post_trial: 0
       };
-    stim.push(next_stim);
+    stim.push(next_stim); // add to array
+      /* Display probe/collect response */
     var next_probe =
     {stimulus: '<p>' + trials[i].probe + '</p>',
     data: {answer: trials[i].correct,
@@ -64,6 +71,11 @@ var test_fun = function() {
     timing_response: 2000,
     type: 'single-stim',
     choices: [77, 78], // M or N
+    is_html: true,
+    prompt: 'Press M for a match OR N for not a match',
+    response_ends_trial: false,
+    timing_post_trial: 0,
+      /* check if reponse is correct */
     on_finish: function(data){
       var correct = false;
       if(data.answer == 'm' && data.key_press == 77){
@@ -74,18 +86,32 @@ var test_fun = function() {
       jsPsych.data.addDataToLastTrial({correct: correct});
     }
   };
-    stim.push(next_probe);
+    stim.push(next_probe); // add to array
+    var fb = {type: "single-stim",
+    timing_stim: 500,
+    timing_response: 500,
+    choices: -1,
+    is_html: true,
+    response_ends_trial: false,
+    timing_post_trial: 0,
+    /* Give feedback based on response during last trial (the probe) */
+    stimulus: function() {
+      var last_trial = jsPsych.data.getLastTrialData();
+      console.log(last_trial);
+      if(last_trial.correct == true){
+        return '<p>correct</p>';
+      } else {
+        return '<p>X</p>';
+      };
+    }
+  };
+    stim.push(fb); //add to array
     };
-    console.log(stim);
   return stim;
 };
 
-var test_block2 = {
-  is_html: true,
-  prompt: 'Press M for a match OR N for not a match',
-  timeline: test_fun(),
-  response_ends_trial: false,
-  timing_post_trial: 0
+var block = {
+  timeline: create_trials()
 };
 
 
@@ -104,7 +130,7 @@ function getSubjectData() {
   }
   return {
     rt: Math.floor(sum_rt / correct_trial_count),
-    accuracy: Math.floor(correct_trial_count / trials.length * 100)
+    accuracy: Math.floor(correct_trial_count / (trials.length/2) * 100)
   }
 };
 
@@ -124,7 +150,7 @@ var debrief_block = {
    var timeline = [];
    timeline.push(welcome_block);
    timeline.push(instructions_block);
-   timeline.push(test_block2);
+   timeline.push(block);
    timeline.push(debrief_block);
 
    /* start the experiment */
