@@ -63,12 +63,12 @@
         /* Create memory set */
         var next_stim =
           {stimuli: [
-          "<p>+</p>",
-          '<p>' + trials[i].w1 + '</p><p>' + trials[i].w2 +
-          '</p><p>' + trials[i].w3 + '</p><p>' + trials[i].w4 + '</p>',
-           '<p>' + trials[i].w5 + '</p><p>' + trials[i].w6 +
-          '</p><p>' + trials[i].w7 + '</p><p>' + trials[i].w8 + '</p><p>',
-          '<p>+++</p>',
+          '<center><p>+++</p></center>',
+          '<center><p>+++</p><p class="up">' + trials[i].w4 + '<br>' + trials[i].w3 +
+          '<br>' + trials[i].w2 + '<br>' + trials[i].w1 + '</p></center>',
+          '<center><p>+++</p><p>' + trials[i].w5 + '<br>' + trials[i].w6 +
+          '<br>' + trials[i].w7 + '<br>' + trials[i].w8 + '</p></center>',
+          '<center><p>+++</p></center>',
         ],
         data: {trial_count: i + 1},
         timing_stim: [1000, 2000, 2000, 2000], // timing of each stim
@@ -76,14 +76,14 @@
         timing_response: 7000,
         choices: -1,
         is_html: true,
-        prompt: 'Press M for a match OR N for not a match',
+        prompt: '<prompt class="left">F = NO</prompt><prompt class="right">J = YES</prompt>',
         response_ends_trial: false,
         timing_post_trial: 0
           };
         stim.push(next_stim); // add to array
           /* Display probe/collect response */
         var next_probe =
-        {stimulus: '<p>' + trials[i].probe + '</p>',
+        {stimulus: '<center><p>' + trials[i].probe + '</p></center>',
         data: {answer: trials[i].correct,
         trial_count: i + 1},
         timing_stim: 2000,
@@ -91,7 +91,7 @@
         type: 'single-stim',
         choices: [77, 78], // M or N
         is_html: true,
-        prompt: 'Press M for a match OR N for not a match',
+        prompt: '<prompt class="left">F = NO</prompt><prompt class="right">J = YES</prompt>',
         response_ends_trial: false,
         timing_post_trial: 0,
           /* check if reponse is correct */
@@ -118,9 +118,9 @@
           var last_trial = jsPsych.data.getLastTrialData();
           console.log(last_trial);
           if(last_trial.correct == true){
-            return '<p>correct</p>';
+            return '<center><p>correct</p></center>';
           } else {
-            return '<p>X</p>';
+            return '<center><p>X</p></center>';
           };
         }
       };
